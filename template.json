@@ -1,0 +1,54 @@
+{
+  "variables": {
+    "vagrant_cloud_token": "{{ env `VAGRANT_CLOUD_TOKEN` }}"
+  },
+  "builders": [
+    {
+      "type": "qemu",
+      "accelerator": "kvm",
+      "boot_command": [
+        "<esc><wait>",
+        "auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<enter>"
+      ],
+      "boot_wait": "10s",
+      "disk_interface": "virtio",
+      "disk_size": "5000M",
+      "format": "qcow2",
+      "headless": true,
+      "http_directory": "config",
+      "iso_url": "https://ftp.acc.umu.se/debian-cd/current/amd64/iso-cd/debian-10.5.0-amd64-netinst.iso",
+      "iso_checksum": "0a6aee1d9aafc1ed095105c052f9fdd65ed00ea9274188c9cd0072c8e6838ab40e246d45a1e6956d74ef1b04a1fc042151762f25412e9ff0cbf49418eef7992e",
+      "memory": 2048,
+      "net_device": "virtio-net",
+      "output_directory": "pxe",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+      "ssh_password": "root",
+      "ssh_timeout": "60m",
+      "ssh_username": "root",
+      "vm_name": "pxe"
+    }
+  ],
+  "provisioners": [
+        {
+      "type": "shell",
+      "scripts": [
+        "scripts/bootstrap-proxmox.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+      "type": "vagrant",
+      "provider_override": "libvirt",
+      "output": "jle35/pve6.2.box"
+      },
+      {
+        "type": "vagrant-cloud",
+        "version": "0.0.2",
+        "access_token": "{{ user `vagrant_cloud_token`}}",
+        "box_tag": "jle35/pve6.2"
+      }
+    ]
+  ]
+}
