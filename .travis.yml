@@ -52,6 +52,7 @@ jobs:
           - GO111MODULE=on
       install:
         # install build dependencies for vagrant-libvirt
+        - env
         - sudo apt-get update
         - sudo apt-get build-dep ruby-libvirt
         - >
